@@ -1,5 +1,4 @@
 
-
 const graphservice = require('spinal-env-viewer-graph-service');
 const SpinalGraphService = graphservice.SpinalGraphService;
 
@@ -62,6 +61,7 @@ class AttributesTabService {
   getList(node, context) {
     return this.initItem(node, context).then((lst) => {
       let list = []
+      let listProm = []
       for (let i = 0; i < lst.length; i++) {
         const element = lst[i];
         let obj = {
@@ -69,12 +69,18 @@ class AttributesTabService {
           id: element.info.id.get(),
           attributes: ""
         }
-        this.getSpatialInfo(element).then(infoSpatial => {
+        let resPromise = this.getSpatialInfo(element).then(infoSpatial => {
           obj.infoSpatial = infoSpatial
+          if (obj.infoSpatial != undefined) {
+            list.push(obj)
+          }
         })
-        list.push(obj)
+        listProm.push(resPromise)
       }
-      return list
+      return Promise.all(listProm).then(() => {
+        return list;
+      })
+
     })
   }
   getSpatialInfo(node) {
@@ -88,19 +94,21 @@ class AttributesTabService {
       return this.getRoomFromNode(node).then((room) => {
         return this.getFloorFromRoomNode(room).then(floor => {
           return this.getBuildingFromFloorNode(floor).then(building => {
-            obj.building = {
-              name: building.info.name.get(),
-              id: building.info.id.get()
+            if (building != undefined) {
+              obj.building = {
+                name: building.info.name.get(),
+                id: building.info.id.get()
+              }
+              obj.floor = {
+                name: floor.info.name.get(),
+                id: floor.info.id.get()
+              }
+              obj.room = {
+                name: room.info.name.get(),
+                id: room.info.id.get()
+              }
+              return obj
             }
-            obj.floor = {
-              name: floor.info.name.get(),
-              id: floor.info.id.get()
-            }
-            obj.room = {
-              name: room.info.name.get(),
-              id: room.info.id.get()
-            }
-            return obj
           })
         })
       })
@@ -123,6 +131,7 @@ class AttributesTabService {
 
   }
   getBuildingFromFloorNode(node) {
+    console.log("element");
     return node.getParents([FLOOR_RELATION]).then(parents => {
       for (let i = 0; i < parents.length; i++) {
         const element = parents[i];
@@ -140,14 +149,14 @@ class AttributesTabService {
           return element
         } else {
           // if his parents is zone, floor can be the parents of zone, we have to check it
-          return element.getParents([ZONE_TYPE]).then(parents => {
-            for (let i = 0; i < parents.length; i++) {
-              const element = parents[i];
-              if (element.info.type.get() === FLOOR_TYPE) {
-                return element
-              }
-            }
-          })
+          // return element.getParents([ZONE_TYPE]).then(parents => {
+          //   for (let i = 0; i < parents.length; i++) {
+          //     const element = parents[i];
+          //     if (element.info.type.get() === FLOOR_TYPE) {
+          //       return element
+          //     }
+          //   }
+          // })
         }
       }
     })
