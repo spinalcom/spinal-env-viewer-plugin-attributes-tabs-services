@@ -73,6 +73,9 @@ class AttributesTabService {
           obj.infoSpatial = infoSpatial
           if (obj.infoSpatial != undefined) {
             list.push(obj)
+          } else {
+            obj.infoSpatial = { building: { id: null, name: null }, floor: { id: null, name: null }, room: { id: null, name: null } }
+            list.push(obj)
           }
         })
         listProm.push(resPromise)
@@ -131,7 +134,6 @@ class AttributesTabService {
 
   }
   getBuildingFromFloorNode(node) {
-    console.log("element");
     return node.getParents([FLOOR_RELATION]).then(parents => {
       for (let i = 0; i < parents.length; i++) {
         const element = parents[i];
