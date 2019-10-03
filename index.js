@@ -173,5 +173,24 @@ class AttributesTabService {
       }
     })
   }
+  addGroupLabelList(nodeModel) {
+    console.log(nodeModel);
+    //let nodeElement = new AppsContextModel(info.title, info.description, userLst, roleLst, info.selectedContext, info.selectedScene, filePath)
+    let node = SpinalGraphService.createNode({ name: info.title, type: nodeTypeApp }, nodeElement)
+    SpinalGraphService.addChildInContext(this.context.info.id.get(), node, this.context.info.id.get(), relationName, relationType)
+
+  }
+  getGroupLabelList(nodeModel) {
+    console.log(nodeModel);
+
+  }
+  updateGroupLabelList(nodeModel) {
+    console.log(nodeModel);
+
+  }
+  deleteAttrGroupLabelList(nodeModel) {
+    console.log(nodeModel);
+
+  }
 }
 export const tabService = new AttributesTabService();
